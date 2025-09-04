@@ -59,47 +59,145 @@ mvn spring-boot:run
 The server will start at `http://localhost:8080`.
 
 ### Example APIs
+````markdown
+### 6.1 Place Order
 
-* **Place Order** (POST):
+Below are two realistic flows that demonstrate **exact match** and **partial match** behavior.  
+(Prices are per share; matching uses price-time priority.)
 
-  ```
-  POST /api/orders
-  {
-    "userId": "U1",
-    "stockId": "AAPL",
-    "type": "BUY",
-    "price": 100,
-    "quantity": 1000
-  }
-  ```
+---
 
-* **Search Stocks** (GET):
+#### A) Exact Order Match
 
-  ```
-  GET /api/stocks/search?query=app&limit=5
-  ```
+**Step 1 — Place BUY**
+```http
+POST /api/orders
+Content-Type: application/json
 
-* **Exact Stock Lookup** (GET):
+{
+  "type": "BUY",
+  "stock_id": "AAPL",
+  "price": 100,
+  "quantity": 1000
+}
+````
 
-  ```
-  GET /api/stocks/AAPL?by=shortCode
-  ```
+**Response**
 
-### Example Responses
+```json
+{
+  "order_id": "ORD_BUY_1",
+  "status": "PENDING",
+  "remaining_quantity": 1000
+   "trades": []
+}
+```
 
-* A **trade** response includes:
+**Step 2 — Place SELL (same price & quantity)**
 
-  ```json
-  {
-    "tradeId": "...",
-    "buyOrderId": "...",
-    "sellOrderId": "...",
-    "stockId": "AAPL",
-    "quantity": 600,
-    "executionPrice": 100,
-    "timestamp": "2025-09-04T12:34:56"
-  }
-  ```
+```http
+POST /api/orders
+Content-Type: application/json
+
+{
+  "type": "SELL",
+  "stock_id": "AAPL",
+  "price": 100,
+  "quantity": 1000
+}
+```
+
+**Response**
+
+```json
+{
+  "order_id": "ORD_SELL_1",
+  "status": "FILLED",
+  "remaining_quantity": 0,
+   "trades": [
+        {
+            "tradeId": "9869b0cf-50a9-41c4-a04d-5cccc81ac792",
+            "buyOrderId": "32e634ae-8f6b-46ae-a545-2704de2a87a7",
+            "sellOrderId": "c676c320-3a09-4117-9312-b87d28daf9d2",
+            "stockId": "AAPL",
+            "quantity": 1000,
+            "executionPrice": 100,
+            "timestamp": "2025-09-04T23:11:21.6677186"
+        }]
+}
+```
+
+> Result: The SELL matches the prior BUY **completely** at 100.
+> The earlier BUY will also now be **FILLED** with `remaining_quantity = 0`.
+
+---
+
+#### B) Partial Order Match
+
+**Step 1 — Place BUY**
+
+```http
+POST /api/orders
+Content-Type: application/json
+
+{
+  "type": "BUY",
+  "stock_id": "AAPL",
+  "price": 100,
+  "quantity": 1000
+}
+```
+
+**Response**
+
+```json
+{
+  "order_id": "ORD_BUY_2",
+  "status": "PENDING",
+  "remaining_quantity": 1000
+}
+```
+
+**Step 2 — Place SELL (less quantity at same price)**
+
+```http
+POST /api/orders
+Content-Type: application/json
+
+{
+  "type": "SELL",
+  "stock_id": "AAPL",
+  "price": 100,
+  "quantity": 600
+}
+```
+
+**Response**
+
+```json
+{
+  "order_id": "ORD_SELL_2",
+  "status": "FILLED",
+  "remaining_quantity": 0
+}
+```
+
+> Result: A **partial trade of 600** executes at 100.
+> The BUY order now has `remaining_quantity = 400` and status **PARTIALLY\_FILLED** (still open in the book).
+
+---
+
+**Notes**
+
+* `status` transitions: `PENDING` → `PARTIALLY_FILLED` → `FILLED` (or `CANCELED` if supported).
+* Matching uses **highest BUY vs lowest SELL**; ties use **earlier order first** (sequence-based FIFO).
+* Execution price equals the **resting order’s price** in this design (common matching convention).
+
+```
+
+If you want, I can also add a tiny “Troubleshooting” tip right under this—e.g., what you’ll see if prices don’t cross (no match, order remains pending).
+```
+
 
 ---
 
