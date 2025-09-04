@@ -58,7 +58,7 @@ mvn spring-boot:run
 
 The server will start at `http://localhost:8080`.
 
-**Step 1 — Exact Order Match**
+**A) Exact Order Match**
 
 **Step 1 — Place BUY**
 ```http
