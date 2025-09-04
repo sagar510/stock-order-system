@@ -1,16 +1,16 @@
+Here’s the corrected version:
 
----
-
-````markdown
 # 📈 Stock Order Matching System
 
 ## 1. Problem Statement & Approach
 The goal of this project is to implement a simplified **stock exchange order matching system** with the following requirements:
+
 - Users can place **BUY** or **SELL** orders for stocks.
 - Orders are matched based on:
   - **Price priority**: Highest BUY vs. lowest SELL.
   - **Time/sequence priority**: Earlier orders win if prices are the same.
-- Supports **partial matches** (e.g., BUY 1000 vs. SELL 600 → trade 600, leave 400 pending).
+- Supports **partial matches**  
+  (e.g., BUY 1000 vs. SELL 600 → trade 600, leave 400 pending).
 - Includes a **search feature** over ~1M stock records:
   - Exact lookup by `id` or `shortCode` (hash map / DB indexed).
   - Prefix search by name (trie-based in-memory snapshot).
@@ -23,32 +23,16 @@ The goal of this project is to implement a simplified **stock exchange order mat
 - **Trade Executor**:
   - Generates immutable trade records from matched orders.
 - **Search**:
-  - Hybrid approach: 
-    - Exact lookups → always fresh (direct map/DB index).
+  - Hybrid approach:  
+    - Exact lookups → always fresh (direct map/DB index).  
     - Prefix searches → served from in-memory snapshot (rebuilt periodically).
 - **API-first design**:
   - REST endpoints for order placement, search, and trade responses.
 - **Phased implementation**:
-  - Phase 1: Project scaffolding, domain models.
-  - Phase 2: Matching engine + order placement API.
-  - Phase 3: Search feature (mocked snapshot).
-  - Phase 4: DB persistence (designed, optional in this submission).
-
----
-
-## 2. Setup Instructions
-### Tech Stack
-- **Language**: Java 17
-- **Framework**: Spring Boot 3.x
-- **Build Tool**: Maven
-- **(Optional)** Database: PostgreSQL 15+ (planned for persistence)
-
-### Clone & Build
-```bash
-git clone https://github.com/<your-username>/stock-order-system.git
-cd stock-order-system
-mvn clean install
-````
+  1. Phase 1: Project scaffolding, domain models.  
+  2. Phase 2: Matching engine + order placement API.  
+  3. Phase 3: Search feature (mocked snapshot).  
+  4. Phase 4: DB persistence (designed, optional in this submission).  
 
 ---
 
