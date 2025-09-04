@@ -58,19 +58,7 @@ mvn spring-boot:run
 
 The server will start at `http://localhost:8080`.
 
-Got it — I’ll expand the **Place Order** section in your README to show **both Exact Match** and **Partial Match** flows, using your simplified response shape (`order_id`, `status`, `remaining_quantity`) and snake\_case keys.
-
-Paste this into your README under “6.1 Place Order”.
-
-````markdown
-### 6.1 Place Order
-
-Below are two realistic flows that demonstrate **exact match** and **partial match** behavior.  
-(Prices are per share; matching uses price-time priority.)
-
----
-
-#### A) Exact Order Match
+**Step 1 — Exact Order Match**
 
 **Step 1 — Place BUY**
 ```http
