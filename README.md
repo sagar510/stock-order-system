@@ -35,6 +35,11 @@ The goal of this project is to implement a simplified **stock exchange order mat
 
 ---
 
+📖 **Detailed Developer Documentation**:  
+[Developer Documentation – Stock Order Matching System](https://psagarsd.atlassian.net/wiki/external/MDVlYmM4ODFiYWJjNDdiNGFlMDFkYWY3YTE1NzZkN2E)
+
+---
+
 ## 3. Prerequisites
 
 * Java 17 installed
