@@ -143,11 +143,11 @@ The server will start at `http://localhost:8080`.
 
 ---
 
-## 7. Loom Video
+## 7. Loom Videos
 
-📹 Loom demo link: *\[to be added]*
-
----
+1. 📹 [Requirement Understanding](https://www.loom.com/share/e867a8c64f08496a89c2f2aade919d0e)
+2. 📹 [Demo](https://www.loom.com/share/2b0ecc66d8944dc6a29fe93f5de7f8d1)
+3. 📹 [Approach & Trade-Offs](https://www.loom.com/share/ccd58b3b8dc94992b764ca84653e690b)
 
 ```
 
