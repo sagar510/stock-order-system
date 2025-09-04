@@ -1,4 +1,3 @@
-Here’s the corrected version:
 
 # 📈 Stock Order Matching System
 
