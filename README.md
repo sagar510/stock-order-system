@@ -59,7 +59,7 @@ mvn spring-boot:run
 The server will start at `http://localhost:8080`.
 
 ### Example APIs
-````markdown
+````
 ### 6.1 Place Order
 
 Below are two realistic flows that demonstrate **exact match** and **partial match** behavior.  
