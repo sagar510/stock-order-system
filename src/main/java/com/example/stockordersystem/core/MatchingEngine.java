@@ -16,30 +16,23 @@ public class MatchingEngine {
         this.tradeExecutor = tradeExecutor;
     }
 
-    /**
-     * Place an order → match only within that stock's order book
-     */
-    public List<Trade> placeOrder(Order newOrder) {
+    public MatchingResult placeOrder(Order newOrder) {
         OrderBook book = orderBookManager.getOrderBook(newOrder.getStockId()); // same instance
+        List<Trade> trades = new ArrayList<>();
+        List<Order> changedOrders = new ArrayList<>();
+
         var lock = book.lock();             // lock belongs to the book
         lock.lock();                        // block until acquired
         try {
             if (newOrder.getType() == OrderType.BUY) {
-                return MatchingLogic.matchBuy(newOrder, book, tradeExecutor);
+                trades.addAll(MatchingLogic.matchBuy(newOrder, book, tradeExecutor, changedOrders));
             } else {
-                return MatchingLogic.matchSell(newOrder, book, tradeExecutor);
+                trades.addAll(MatchingLogic.matchSell(newOrder, book, tradeExecutor, changedOrders));
             }
+
+            return new MatchingResult(trades, changedOrders);
         } finally {
             lock.unlock();
         }
-    }
-
-
-    private List<Trade> matchBuyOrder(Order buyOrder, OrderBook orderBook) {
-        return MatchingLogic.matchBuy(buyOrder, orderBook, tradeExecutor);
-    }
-
-    private List<Trade> matchSellOrder(Order sellOrder, OrderBook orderBook) {
-        return MatchingLogic.matchSell(sellOrder, orderBook, tradeExecutor);
     }
 }

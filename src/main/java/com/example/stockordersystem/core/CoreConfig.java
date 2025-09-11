@@ -1,5 +1,6 @@
 package com.example.stockordersystem.core;
 
+import com.example.stockordersystem.db.PersistenceQueueManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -12,8 +13,8 @@ public class CoreConfig {
     }
 
     @Bean
-    public TradeExecutor tradeExecutor() {
-        return new TradeExecutor();
+    public TradeExecutor tradeExecutor(PersistenceQueueManager queueManager) {
+        return new TradeExecutor(queueManager);
     }
 
     @Bean

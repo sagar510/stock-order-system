@@ -1,0 +1,26 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/stock_order_system?sslmode=disable
+    username: postgres
+    password: 123
+    hikari:
+      maximum-pool-size: 10
+      connection-timeout: 5000      # fail fast
+      validation-timeout: 3000
+      idle-timeout: 600000
+  jpa:
+    hibernate:
+      ddl-auto: validate            # use 'validate' or 'none' in prod; 'update' for dev only
+    properties:
+      hibernate.format_sql: true
+  flyway:
+    enabled: false
+    locations: classpath:db/migration
+logging:
+  level:
+    org:
+      springframework:
+        jdbc: INFO
+    com:
+      zaxxer:
+        hikari: INFO

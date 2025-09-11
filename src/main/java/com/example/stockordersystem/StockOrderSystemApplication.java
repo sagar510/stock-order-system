@@ -17,8 +17,7 @@ public class StockOrderSystemApplication {
     @Bean
     CommandLineRunner init(SearchIndexManager manager) {
         return args -> {
-            manager.buildMock(); // preload mock stocks into snapshot
-            System.out.println("✅ Mock SearchIndex built at startup");
+            manager.buildMock();
         };
     }
 }

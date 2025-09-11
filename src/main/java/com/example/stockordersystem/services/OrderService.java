@@ -4,8 +4,11 @@ import com.example.stockordersystem.controllers.order.OrderRequest;
 import com.example.stockordersystem.controllers.order.OrderResponse;
 import com.example.stockordersystem.controllers.trade.TradeResponse;
 import com.example.stockordersystem.core.MatchingEngine;
+import com.example.stockordersystem.core.MatchingResult;
+import com.example.stockordersystem.db.entities.OrderEntity;
+import com.example.stockordersystem.db.repositories.jpa.OrderRepository;
 import com.example.stockordersystem.models.Order;
-import com.example.stockordersystem.models.Trade;
+import com.example.stockordersystem.util.OrderMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,13 +18,16 @@ import java.util.stream.Collectors;
 public class OrderService {
 
     private final MatchingEngine matchingEngine;
+    private final OrderRepository orderRepository;
 
-    public OrderService(MatchingEngine matchingEngine) {
+    public OrderService(MatchingEngine matchingEngine,
+                        OrderRepository orderRepository) {
         this.matchingEngine = matchingEngine;
+        this.orderRepository = orderRepository;
     }
 
     public OrderResponse place(OrderRequest req) {
-        // build domain Order
+        // 1️⃣ Build domain order
         Order order = new Order(
                 req.getUserId(),
                 req.getStockId(),
@@ -30,35 +36,25 @@ public class OrderService {
                 req.getQuantity()
         );
 
-        // run engine
-        List<Trade> trades = matchingEngine.placeOrder(order);
+        // 2️⃣ Save the new order synchronously
+        OrderEntity entity = OrderMapper.toEntity(order);
+        orderRepository.save(entity);
 
-        // map trades to response DTOs
-        List<TradeResponse> tradeDtos = trades.stream().map(t -> {
-            TradeResponse dto = new TradeResponse();
-            dto.setTradeId(t.getTradeId());
-            dto.setBuyOrderId(t.getBuyOrderId());
-            dto.setSellOrderId(t.getSellOrderId());
-            dto.setStockId(t.getStockId());
-            dto.setQuantity(t.getQuantity());
-            dto.setExecutionPrice(t.getExecutionPrice());
-            dto.setTimestamp(t.getTimestamp());
-            return dto;
-        }).collect(Collectors.toList());
+        // 3️⃣ Run engine → trades + changed orders
+        MatchingResult result = matchingEngine.placeOrder(order);
 
-        // build response
-        OrderResponse resp = new OrderResponse();
-        resp.setOrderId(order.getOrderId());
-        resp.setUserId(order.getUserId());
-        resp.setStockId(order.getStockId());
-        resp.setType(order.getType());
-        resp.setPrice(order.getPrice());
-        resp.setQuantity(order.getQuantity());
-        resp.setRemainingQuantity(order.getRemainingQuantity());
-        resp.setStatus(order.getStatus());
-        resp.setTimestamp(order.getTimestamp());
-        resp.setTrades(tradeDtos);
+        // 4️⃣ Persist all changed orders back to DB (sync)
+        List<OrderEntity> changedEntities = result.getUpdatedOrders().stream()
+                .map(OrderMapper::toEntity)
+                .collect(Collectors.toList());
+        orderRepository.saveAll(changedEntities);
 
-        return resp;
+        // 5️⃣ Map trades to response DTOs
+        List<TradeResponse> tradeDtos = result.getTrades().stream()
+                .map(TradeResponse::fromDomain)
+                .collect(Collectors.toList());
+
+        // 6️⃣ Build final response
+        return OrderResponse.fromDomain(order, tradeDtos);
     }
 }

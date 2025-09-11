@@ -11,7 +11,7 @@ import java.util.PriorityQueue;
 
 public class MatchingLogic {
 
-    public static List<Trade> matchBuy(Order buyOrder, OrderBook orderBook, TradeExecutor tradeExecutor) {
+    public static List<Trade> matchBuy(Order buyOrder, OrderBook orderBook, TradeExecutor tradeExecutor, List<Order> changedOrders) {
         List<Trade> trades = new ArrayList<>();
         PriorityQueue<Order> sellOrders = orderBook.getSellOrders();
 
@@ -38,6 +38,10 @@ public class MatchingLogic {
             } else {
                 bestSell.setStatus(OrderStatus.PARTIAL);
             }
+
+            // Add to changed orders
+            changedOrders.add(buyOrder);
+            changedOrders.add(bestSell);
         }
 
         if (buyOrder.getRemainingQuantity() > 0) {
@@ -47,7 +51,7 @@ public class MatchingLogic {
         return trades;
     }
 
-    public static List<Trade> matchSell(Order sellOrder, OrderBook orderBook, TradeExecutor tradeExecutor) {
+    public static List<Trade> matchSell(Order sellOrder, OrderBook orderBook, TradeExecutor tradeExecutor, List<Order> changedOrders) {
         List<Trade> trades = new ArrayList<>();
         PriorityQueue<Order> buyOrders = orderBook.getBuyOrders();
 
@@ -74,6 +78,9 @@ public class MatchingLogic {
             } else {
                 bestBuy.setStatus(OrderStatus.PARTIAL);
             }
+
+            changedOrders.add(bestBuy);
+            changedOrders.add(sellOrder);
         }
 
         if (sellOrder.getRemainingQuantity() > 0) {
